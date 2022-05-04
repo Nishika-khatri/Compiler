@@ -1,0 +1,60 @@
+def checkBraces(exp: str):
+    stack = list()
+
+    for char in exp:
+        if char in ('(', '[', '{'):
+            stack.append(char)
+        elif char in (')', ']',  '}'):
+            if stack[-1] == '(' and char == ')' \
+                or stack[-1] == '[' and char == ']' \
+                or stack[-1] == '{' and char == '}':
+                stack.pop()
+            else:
+                return False
+    
+    if not stack:
+        return True
+    else:
+        return False
+                
+
+def getPostfix(infix: str):
+    PRECEDENCE = {
+        '+': 1,
+        '-': 1,
+        '*': 2,
+        '/': 2,
+        '^': 3
+    }
+    stack = list()
+    out = str()
+
+    if checkBraces(infix):
+        for char in infix:
+            if char in ('(', '[', '{'):
+                stack.append(char)
+
+            elif char.isalpha():
+                out += char
+
+            elif char in PRECEDENCE.keys():
+                while PRECEDENCE.get(stack[-1], -1) >= PRECEDENCE.get(char, 1):
+                    out += stack[-1]
+                    stack.pop()
+
+                    if stack[-1] in ('(', '[', '{'):
+                        break
+                
+                stack.append(char)
+
+            elif char in (')', ']',  '}'):
+                while stack[-1] not in ('(', '[', '{'):
+                    out += stack[-1]
+                    stack.pop()
+                stack.pop()
+    else:
+        print("Not a valid expression")
+    
+    return out
+
+print(getPostfix("(A+B*C+D)"))
