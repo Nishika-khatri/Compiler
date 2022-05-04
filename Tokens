@@ -1,0 +1,137 @@
+import sys
+import re
+
+class Tokenize:
+    KEYWORDS = ["auto", "break", "case", "const", "continue", "default", "do", "else", "enum", "extern", "for", "goto", "if", "register", "return", "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "volatile", "while", "_packed"]
+    DATATYPES = ["char", "double", "float", "int", "long", "short"]
+    OPERATORS = ["+", "-", "*", "/", "%", "++", "--", "==", "!=", ">", "<", ">=", "<=", "&&", "||", "!", "&", "|", "^", "~", "<<", ">>", "=", ",", ";", ":"]
+    BRACES = ["{", "}"]
+    IDENTIFIER_MATCH = re.compile("[_a-zA-Z][_a-zA-Z0-9]*")
+    NCONSTANT_MATCH = re.compile("[0-9]*((\.){1}[0-9]*)?[fFlL]?")
+    CCONSTANT_MATCH = re.compile("\".+\"")
+
+    def __init__(self, *args, input=None, output=None):
+        self.input = input
+        self.output = output
+        self.stdout = sys.stdout
+        if output:
+            sys.stdout = open(output, 'w')
+
+    def tokenize(self, *args, program=None):
+        if not program:
+            program = self.openFile()
+        
+        print("TOKEN CHARACTERISATION OF PROGRAM")
+        for line in program:
+            if line.startswith('#'):
+                continue
+            
+            print("-"*40)
+
+            lexines = self.split(line)
+            # print(lexines)
+            for lexine in lexines:
+                if lexine in ('', ' '):
+                    continue
+                elif self.checkOperator(lexine):
+                    print(f"{lexine} : OPERATOR")
+                elif self.checkKeyword(lexine):
+                    print(f"{lexine} : KEYWORD")
+                elif self.checkDatatype(lexine):
+                    print(f"{lexine} : DATATYPE")
+                elif self.checkBraces(lexine):
+                    print(f"{lexine} : BRACES")
+                elif self.checkIdentifier(lexine):
+                    print(f"{lexine} : IDENTIFIER")
+                elif self.checkNConstant(lexine):
+                    print(f"{lexine} : NUMERIC CONSTANT")
+                elif self.checkCConstant(lexine):
+                    print(f"{lexine} : CHARACTER CONSTANT")
+
+    def openFile(self, *args):
+        if not self.input:
+            print("Provide an input file")
+            sys.exit(0)
+        else:
+            lines = str()
+            with open(self.input, 'r') as f:
+                lines = f.readlines()
+            return lines
+
+    def checkKeyword(self, lexine):
+        if lexine in self.KEYWORDS:
+            return True
+        else:
+            return False
+    
+    def checkOperator(self, lexine):
+        if lexine in self.OPERATORS:
+            return True
+        else:
+            return False
+
+    def checkDatatype(self, lexine):
+        if lexine in self.DATATYPES:
+            return True
+        else:
+            return False
+        
+    def checkIdentifier(self, lexine):
+        return bool(self.IDENTIFIER_MATCH.match(lexine))
+
+    def checkNConstant(self, lexine):
+        return bool(self.NCONSTANT_MATCH.match(lexine))
+
+    def checkCConstant(self, lexine):
+        return bool(self.CCONSTANT_MATCH.match(lexine))
+
+    def checkBraces(self, lexine):
+        if lexine in self.BRACES:
+            return True
+        else:
+            return False
+
+    def split(self, line):
+        lexines = list()
+
+        lexine = str()
+        constant = False
+        for char in line:
+            
+            if self.checkOperator(char) or self.checkBraces(char):
+                lexines.append(lexine.strip())
+                lexines.append(char)
+                lexine = ""
+            
+            elif char == " ":
+                if lexine and not constant:
+                    lexines.append(lexine.strip())
+                    lexine = ""
+                else:
+                    lexine += char
+                    continue
+
+            else:
+                if char == '"' or char == "'":
+                    if not constant:
+                        if lexine[-1] == '(':
+                            lexine += ')'
+                            lexines.append(lexine.strip())
+                            lexine = ""
+                        elif lexine[-1] == '[':
+                            lexine += ']'
+                            lexines.append(lexine.strip())
+                            lexine = ""
+
+                        constant = True
+                    else:
+                        constant = False
+                
+                lexine += char
+
+
+        return lexines
+
+if __name__ == "__main__":
+    t = Tokenize(input="hello.c", output="tokens.txt")
+    t.tokenize()
