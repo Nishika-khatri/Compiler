@@ -1,0 +1,74 @@
+def checkRegex(string: str, transitionTable: dict, initialState, finalStates: list) -> bool:
+    currentState = initialState
+    for char in string:
+        try:
+            currentState = transitionTable[currentState][char]
+        except KeyError:
+            currentState = "Dead"
+            break
+    
+    if currentState in finalStates:
+        return True
+    else:
+        return False
+
+
+if __name__ == "__main__":
+
+    transitionTable = {
+        'S1': {'a': 'S2'},
+        'S2': {'b': 'S2', 'c': 'S3'},
+        'S3': {'d': 'S4'},
+        'S4': {'e': 'S5'},
+        'S5': {'f': 'S6'},
+        'S6': {'a': 'S6', 'd': 'S7'},
+        'S7': {'d': 'S7', 'e': 'S8'},
+        'S8': {'f': 'S6'},
+    }
+    finalStates = ['S8']
+    string = input("Enter the string:")
+
+    if checkRegex(string, transitionTable, 'S1', finalStates):
+        print(f'{string} : Matched')
+    else:
+        print(f'{string} : Not Matched')
+
+
+
+
+
+
+
+
+if __name__ == "__main__":
+
+    transitionTable = {
+        'S1': {'a': 'S1', 'b': 'S1', 'c': 'S2', 'd': 'S2'},
+        'S2': {'a': 'S3', 'c': 'S2', 'd': 'S2'},
+        'S3': {'b': 'S3', 'c': 'S3', 'd': 'S4'},
+        'S4': {}
+    }
+    finalStates = ['S4']
+    string = input("Enter the string:")
+
+    if checkRegex(string, transitionTable, 'S1', finalStates):
+        print(f'{string} : Matched')
+    else:
+        print(f'{string} : Not Matched')
+
+
+if __name__ == "__main__":
+
+    transitionTable = {
+        'S1': {'0': 'S2', '1': 'S3'},
+        'S2': {'0': 'S2', '1': 'S3'},
+        'S3': {'0': 'S2', '1': 'S3'}
+    }
+    finalStates = ['S1', 'S2', 'S3']
+    string = input("Enter the string:")
+
+    if checkRegex(string, transitionTable, 'S1', finalStates):
+        print(f'{string} : Matched')
+    else:
+        print(f'{string} : Not Matched')
+
