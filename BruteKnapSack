@@ -1,0 +1,59 @@
+import pandas as pd
+
+class Knapsack:
+
+    def __init__(self, items=None, maxWeight=None):
+        self.items = items
+        self.maxWeight = maxWeight
+        self.selectedItems = list()
+
+    def solve(self):
+
+        W = self.maxWeight
+        n = len(self.items)
+
+
+        DP = [[0 for x in range(W + 1)] for x in range(n + 1)]
+        KEEP = [[0 for x in range(W + 1)] for x in range(n + 1)]
+
+        for i in range(1, n + 1):
+            item = self.items[i - 1]
+            for j in range(1, W + 1):
+                if item['weight'] <= j:
+                    if DP[i - 1][j] > item['profit'] + DP[i - 1][j - item['weight']]:
+                        KEEP[i][j] = 0
+                        DP[i][j] = DP[i - 1][j]
+                    else:
+                        KEEP[i][j] = 1
+                        DP[i][j] = item['profit'] + DP[i - 1][j - item['weight']]
+                else:
+                        KEEP[i][j] = 0
+                        DP[i][j] = DP[i - 1][j]
+        
+        self.finalMatrix = str(pd.DataFrame(DP))
+        self.maxProfit = DP[n][W]
+
+        i = n
+        while W > 0 or i > 0:
+            if KEEP[i][W] == 1:
+                self.selectedItems.append(self.items[i - 1])
+                W = W - self.items[i - 1]["weight"]
+            i -= 1
+        
+
+    def printSolution(self):
+
+        print(pd.DataFrame(self.selectedItems))
+        print(f"\nMax Profit: {self.maxProfit}")
+
+kp = Knapsack()
+kp.items = [
+    {"name": 'I1', "weight": 1, "profit": 60},
+    {"name": 'I2', "weight": 2, "profit": 100},
+    {"name": 'I3', "weight": 3, "profit": 120},
+]
+
+kp.maxWeight = 5
+
+kp.solve()
+kp.printSolution()
