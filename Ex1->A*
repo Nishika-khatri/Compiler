@@ -1,0 +1,85 @@
+import heapq
+
+class Edge:
+    def __init__(self, v, weight: int, h: int):
+        self.destination = v
+        self.weight = weight
+        self.h = h
+    
+    def __repr__(self):
+        return str(self)
+    
+    def __str__(self):
+        return f"[{self.destination}, W:{self.weight}, H:{self.h}]"
+    
+    def __lt__(self, next):
+        return ((self.weight + self.h) < (next.weight + next.h))
+
+class Graph:
+    def __init__(self):
+        self.graph = dict()
+        self.h = dict()
+    
+    def _makeEdge(self, dest, weight: int) -> dict:
+        return Edge(dest, weight, self.h[dest])
+
+    def setHValue(self, vertex, value):
+        if type(vertex) == list:    
+            for ve,va in zip(vertex,value):
+                self.h[ve] = va
+        else:
+            self.h[vertex] = value
+
+    def addEdge(self, source, destination, weight: int) -> None:
+        if self.graph.get(source):
+            self.graph[source].append(self._makeEdge(destination, weight))
+        else:
+            self.graph[source] = [self._makeEdge(destination, weight)]
+    
+    def __str__(self):
+        g = f"H-Values: {self.h}\nGraph:\n"
+        for u in self.graph:
+            g += f"{u}: {self.graph[u]}\n"
+        return g
+
+
+
+def AStarSearch(graph: Graph, initial, final) -> list:
+
+    OpenList = []
+    CloseList = [Edge(initial, 0, 0)]
+
+    heapq.heapify(CloseList)
+
+    while CloseList:
+        curr = heapq.heappop(CloseList)
+        OpenList.append(curr)
+
+        if curr.destination == final:
+            break;
+
+        try:
+            for adj in graph.graph[curr.destination]:
+                heapq.heappush(CloseList, adj)
+        except KeyError:
+            break
+    return OpenList
+
+if __name__ == "__main__":
+
+    g = Graph()
+    
+    g.setHValue(['S', 'A', 'B', 'C', 'D', 'G'], [5, 3, 4, 2, 6, 0])
+
+    g.addEdge('S', 'A', 1)
+    g.addEdge('S', 'G', 10)
+    g.addEdge('A', 'B', 2)
+    g.addEdge('A', 'C', 1)
+    g.addEdge('B', 'D', 5)
+    g.addEdge('C', 'G', 4)
+    g.addEdge('C', 'D', 3)
+    g.addEdge('D', 'G', 2)
+       
+    print(g)
+
+    print(AStarSearch(g, 'S', 'G'))
