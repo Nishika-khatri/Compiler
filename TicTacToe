@@ -1,0 +1,185 @@
+import re
+from tkinter import *
+import tkinter.messagebox
+
+
+class Game:
+    def __init__(self):
+        self.root = Tk()
+        self.board = [" "] * 10
+        self.buttons = list()
+
+    def construct(self):
+        self.root.title("TIC TAC TOE")
+        self.root.resizable(width=False, height=False)
+        self.root.minsize(width=300, height=400)
+
+        self.makeMenu().pack(side="top")
+        self.makeBoard().pack(side="bottom")
+
+    def play(self):
+        self.construct()
+        self.root.mainloop()
+
+    def reset(self):
+        self.board = [" "] * 10
+
+        for btn in self.buttons:
+            btn['text'] = ' '
+
+    def makeMenu(self):
+        menuFrame = Frame(self.root)
+
+        resetButton = Button(
+            menuFrame,
+            text="New Game",
+            font=("Helvetica", 14),
+            height=2,
+            width=18,
+            bg="white",
+            command=self.reset,
+            relief="flat"
+        )
+        resetButton.pack()
+
+        return menuFrame
+
+    def makeBoard(self):
+        board = Frame(self.root)
+
+        for i in range(3):
+            for j in range(3):
+                btn = Button(
+                    board,
+                    text=" ",
+                    font=("Helvetica", 20),
+                    height=3,
+                    width=6,
+                    bg="white",
+                    relief="flat",
+                )
+                self.buttons.append(btn)
+                btn.bind("<1>", self.userMove)
+                btn.grid(row=i, column=j, padx=2, pady=2)
+
+        return board
+    
+    def disable(self):
+        for btn in self.buttons:
+            btn['state'] = "DISABLED"
+
+    def userMove(self, event):
+        if event.widget['text'] == " ":
+            event.widget.config(text="X")
+            ind = self.buttons.index(event.widget)
+            self.board[ind + 1] = "X"
+            if self.checkWinner("X"):
+                # self.disable()
+                tkinter.messagebox.showinfo("Information", "You won")
+            else: 
+                self.computerMove()
+        else:
+            tkinter.messagebox.showinfo("Information", "Select an empty box")
+        
+    def computerMove(self):
+        move = self.heuristicMove()
+
+        if move == -1:
+            tkinter.messagebox.showinfo("Information", "It is a tie")
+
+        self.buttons[move - 1]['text'] = 'O'
+        self.board[move] = 'O'
+
+        if self.checkWinner('O'):
+            tkinter.messagebox.showinfo("Information", "Computer won")
+
+
+    def heuristicMove(self):
+        dup = self.board.copy()
+        possibleMoves = list()
+        heuristic = dict()
+        for i in range(1,10):
+            if dup[i] == " ":
+                possibleMoves.append(i)
+        
+        if not possibleMoves:
+            return -1
+
+        for index in possibleMoves:
+            copy = dup.copy()
+            copy[index] = 'O'
+
+            if self.checkWinner('O', board=copy):
+                heuristic[index] = 100
+            else:
+                heuristic[index] = 10
+            
+            copy[index] = 'X'
+
+            if self.checkWinner('X', board=copy):
+                heuristic[index] += 70
+
+        return max(heuristic, key=heuristic.get)
+
+    def checkWinner(self, letter, board=None):
+        if board:
+            return (
+                (board[1] == letter and board[2] == letter and board[3] == letter)
+                or (board[4] == letter and board[5] == letter and board[6] == letter)
+                or (board[7] == letter and board[8] == letter and board[9] == letter)
+                or (board[1] == letter and board[4] == letter and board[7] == letter)
+                or (board[2] == letter and board[5] == letter and board[8] == letter)
+                or (board[3] == letter and board[6] == letter and board[9] == letter)
+                or (board[1] == letter and board[5] == letter and board[9] == letter)
+                or (board[3] == letter and board[5] == letter and board[7] == letter)
+            )
+        else:
+            return (
+                (
+                    self.board[1] == letter
+                    and self.board[2] == letter
+                    and self.board[3] == letter
+                )
+                or (
+                    self.board[4] == letter
+                    and self.board[5] == letter
+                    and self.board[6] == letter
+                )
+                or (
+                    self.board[7] == letter
+                    and self.board[8] == letter
+                    and self.board[9] == letter
+                )
+                or (
+                    self.board[1] == letter
+                    and self.board[4] == letter
+                    and self.board[7] == letter
+                )
+                or (
+                    self.board[2] == letter
+                    and self.board[5] == letter
+                    and self.board[8] == letter
+                )
+                or (
+                    self.board[3] == letter
+                    and self.board[6] == letter
+                    and self.board[9] == letter
+                )
+                or (
+                    self.board[1] == letter
+                    and self.board[5] == letter
+                    and self.board[9] == letter
+                )
+                or (
+                    self.board[3] == letter
+                    and self.board[5] == letter
+                    and self.board[7] == letter
+                )
+            )
+
+
+
+
+if __name__ == "__main__":
+    g = Game()
+    g.play()
