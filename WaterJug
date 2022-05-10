@@ -1,0 +1,75 @@
+class WaterJug:
+
+  def solve(self, a, b, target):
+    visited = set((0, 0))
+    parent = {}
+    q = [] 
+    q.append({'state': (0, 0), 'parent': (0, 0)})
+    isSolvable = False
+
+    path = []
+    
+    while q:
+      current = q.pop(0)
+      curr = current['state']
+
+      # Already visited state
+      if curr in visited:
+        continue 
+
+      # States that are not possible
+      if curr[0] > a or curr[0] < 0 or curr[1] > b or curr[1] < 0:
+        continue  
+
+      visited.add(curr)
+      parent[curr] = current['parent']
+
+      if curr[0] == target or curr[1] == target:
+        t = curr
+        isSolvable = True
+        if curr[0] == target and curr[1] != 0:
+          parent[(curr[0], 0)] = curr
+          t = (curr[0], 0)
+        elif curr[1] == target and curr[0] != 0:
+          parent[(0, curr[1])] = curr
+          t = (0, curr[1])
+          
+        path.insert(0, t)
+        #  Creating path 
+        # print(parent)
+        while path[0] != (0,0):
+          path.insert(0, parent[path[0]])
+        break
+          
+
+      q.append({'state': (curr[0], b), 'parent': curr})
+      q.append({'state':(a, curr[1]), 'parent': curr})
+
+      if curr[0] + curr[1] > a:
+        q.append({'state':(a, curr[1] - (a - curr[0])), 'parent': curr})
+      elif curr != (0, 0):
+        q.append({'state':(curr[0]+curr[1], 0),'parent': curr})
+
+      if curr[0] + curr[1] > b:
+        q.append({'state':(curr[0] - (b - curr[1]), b), 'parent': curr})
+      elif curr != (0, 0):
+        q.append({'state':(0, curr[0]+curr[1]), 'parent':curr})
+
+      q.append({'state':(0, curr[1]), 'parent':curr})
+      q.append({'state':(curr[0], 0), 'parent':curr})
+
+    return isSolvable, path
+
+if __name__ == "__main__":
+  Jug1, Jug2, target = 4, 3, 4
+
+  wj = WaterJug()
+  solved, path = wj.solve(Jug1, Jug2, target)
+
+  if solved:
+    ans = ""
+    for state in path:
+      ans += f"{state}->"
+    print(ans[:-2])
+  else:
+    print("No solution found")
