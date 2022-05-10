@@ -1,0 +1,44 @@
+class Graph:
+    def __init__(self):
+        self.graph = dict()
+
+    def addEdge(self, source: int, destination: int) -> None:
+        if self.graph.get(source):
+            self.graph[source].append(destination)
+        else:
+            self.graph[source] = [destination]
+
+
+def DFSRecursive(graph: Graph, v: int, visited: set, res = None):
+
+    if res == None:
+        res = list()    
+    
+    visited.add(v)
+
+    for adj in graph.graph[v]:
+        if adj not in visited:
+            DFSRecursive(graph, adj, visited, res)
+    
+    res.append(v)
+    return res
+
+
+
+def DFS(graph: Graph, source: int) -> list:
+
+    visited = set()
+    res = DFSRecursive(graph, source, visited)
+    return res
+
+if __name__ == "__main__":
+
+    g = Graph()
+    g.addEdge(0, 1)
+    g.addEdge(0, 2) 
+    g.addEdge(1, 2)
+    g.addEdge(2, 0)
+    g.addEdge(2, 3)
+    g.addEdge(3, 3)
+
+    print(DFS(g, 2))
