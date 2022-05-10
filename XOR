@@ -1,0 +1,7 @@
+headers = ["A", "B", "A XOR B"]
+print(f"|{headers[0]:^10}|{headers[1]:^10}|{headers[2]:^10}|")
+
+
+for i in range(0, 2):
+    for j in range(0, 2):
+        print(f"|{i:^10}|{j:^10}|{i^j:^10}|")
