@@ -1,0 +1,52 @@
+import time
+import random
+from asyncio.windows_events import NULL
+
+
+class HiLo:
+
+    def __init__(self):
+        self.high = NULL
+        self.low = NULL
+
+    def guess(self):
+        return random.randint(self.low, self.high)
+
+    def ask(self, num):
+
+        print(f"Is your number {num} (y/n):", end=" ")
+        inp = input()
+
+        return inp == 'y'
+    
+    def play(self):
+        print("\t\t | H I G H - L O W - G A M E |")
+
+        print("Pick a number")
+        time.sleep(3)
+
+        print("Now I am going to guess your number, but could you tell me the range first?")
+        lo, hi = map(int, input().split('-'))
+
+        self.high = hi 
+        self.low = lo 
+
+        # print(f"{hi} {lo}")
+        while True:
+            num = self.guess()
+
+            if self.ask(num):
+                print("Ah! I got you")
+                break
+            else:
+                update = input("Should I go high or low (h/l):")
+
+                if update == "h":
+                    self.low = num 
+                else:
+                    self.high = num
+                
+
+if __name__ == "__main__":
+    game = HiLo()
+    game.play()
